@@ -35,10 +35,9 @@ class SaliencyMaps(BaseVisualization):
 
     def get_gradient_wrt_class(self, class_index):
         gradient_name = 'bv_{class_index}_gradient' \
-                .format(class_index=class_index)
+                    .format(class_index=class_index)
         try:
-            return self.model.sess.graph. \
-                    get_tensor_by_name('{}:0'.format(gradient_name))
+            return self.model.sess.graph.get_tensor_by_name(f'{gradient_name}:0')
         except KeyError:
             class_logit = tf.slice(self.logit_tensor,
                                    [0, class_index],
@@ -60,17 +59,21 @@ class SaliencyMaps(BaseVisualization):
 
         results = []
         for i, inp in enumerate(inputs):
-            class_gradients = []
             output_images = []
             relevant_class_indices = [pred['index']
                                       for pred in decoded_predictions[i]]
             gradients_wrt_class = [self.get_gradient_wrt_class(index) for index
                                    in relevant_class_indices]
-            for gradient_wrt_class in gradients_wrt_class:
-                class_gradients.append([self.model.sess.run(
-                    gradient_wrt_class,
-                    feed_dict={self.model.tf_input_var: [arr]})
-                    for arr in pre_processed_arrays])
+            class_gradients = [
+                [
+                    self.model.sess.run(
+                        gradient_wrt_class,
+                        feed_dict={self.model.tf_input_var: [arr]},
+                    )
+                    for arr in pre_processed_arrays
+                ]
+                for gradient_wrt_class in gradients_wrt_class
+            ]
             output_fns = []
             output_arrays = np.array([gradient[i] for
                                       gradient in class_gradients])
@@ -109,5 +112,4 @@ class SaliencyMaps(BaseVisualization):
               if node.name ==
               self.model.tf_predict_var.name.split(':')[0]][-1]
         logit_op_name = sm.input[0]
-        return self.model.sess.graph. \
-            get_tensor_by_name('{}:0'.format(logit_op_name))
+        return self.model.sess.graph.get_tensor_by_name(f'{logit_op_name}:0')

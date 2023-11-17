@@ -16,7 +16,7 @@ def random_image_files(tmpdir_factory):
     for i in range(4):
         imarray = np.random.rand(10**i, 10**i, 3) * 255
         img = Image.fromarray(imarray.astype('uint8')).convert('RGBA')
-        img.save(str(fn.join('{}.png'.format(i))), 'PNG')
+        img.save(str(fn.join(f'{i}.png')), 'PNG')
     return fn
 
 

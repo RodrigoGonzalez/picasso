@@ -57,8 +57,7 @@ class TestWebApp:
         builder = EnvironBuilder(path=url_for('select_files'), method='POST')
         for path in random_image_files.listdir():
             path = str(path)
-            builder.files.add_file('file[]', path,
-                                   filename=os.path.split(str(path))[-1])
+            builder.files.add_file('file[]', path, filename=os.path.split(path)[-1])
         rv = client.post(url_for('select_files'), data=builder.files)
         assert rv.status_code == 200
 

@@ -31,12 +31,10 @@ def postprocess(output_arr):
 def prob_decode(probability_array, top=5):
     results = []
     for row in probability_array:
-        entries = []
-        for i, prob in enumerate(row):
-            entries.append({'index': i,
-                            'name': str(i),
-                            'prob': prob})
-
+        entries = [
+            {'index': i, 'name': str(i), 'prob': prob}
+            for i, prob in enumerate(row)
+        ]
         entries = sorted(entries,
                          key=itemgetter('prob'),
                          reverse=True)[:top]

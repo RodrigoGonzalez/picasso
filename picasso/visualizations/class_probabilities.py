@@ -19,8 +19,10 @@ class ClassProbabilities(BaseVisualization):
                                           feed_dict={self.model.tf_input_var:
                                                      pre_processed_arrays})
         filtered_predictions = self.model.decode_prob(predictions)
-        results = []
-        for i, inp in enumerate(inputs):
-            results.append({'input_file_name': inp['filename'],
-                            'predict_probs': filtered_predictions[i]})
-        return results
+        return [
+            {
+                'input_file_name': inp['filename'],
+                'predict_probs': filtered_predictions[i],
+            }
+            for i, inp in enumerate(inputs)
+        ]

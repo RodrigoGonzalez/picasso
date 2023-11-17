@@ -10,7 +10,7 @@ import sys
 
 if sys.version_info.major < 3 or (sys.version_info.major == 3 and
                                   sys.version_info.minor < 5):
-    raise SystemError('Python 3.5+ required, found {}'.format(sys.version))
+    raise SystemError(f'Python 3.5+ required, found {sys.version}')
 
 app = Flask(__name__)
 app.config.from_object('picasso.settings.Default')

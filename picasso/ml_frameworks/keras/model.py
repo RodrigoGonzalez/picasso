@@ -47,14 +47,14 @@ class KerasModel(TFModel):
             )
 
         except ValueError:
-            raise FileNotFoundError('No checkpoint (.hdf5 or .h5) files '
-                                    'available at {}'.format(data_dir))
+            raise FileNotFoundError(
+                f'No checkpoint (.hdf5 or .h5) files available at {data_dir}'
+            )
         try:
             latest_json = max(glob.iglob(os.path.join(data_dir, '*.json')),
                               key=os.path.getctime)
         except ValueError:
-            raise FileNotFoundError('No graph (.json) files '
-                                    'available at {}'.format(data_dir))
+            raise FileNotFoundError(f'No graph (.json) files available at {data_dir}')
 
         # for tensorflow compatibility
         K.set_learning_phase(0)

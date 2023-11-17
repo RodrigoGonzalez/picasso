@@ -33,23 +33,21 @@ class TFModel(Model):
             ))
             latest_ckpt = latest_ckpt_fn[:latest_ckpt_fn.rfind('.ckpt') + 5]
         except ValueError:
-            raise FileNotFoundError('No checkpoint (.ckpt) files '
-                                    'available at {}'.format(data_dir))
+            raise FileNotFoundError(f'No checkpoint (.ckpt) files available at {data_dir}')
         try:
             latest_meta = max(glob.iglob(os.path.join(data_dir, '*.meta')),
                               key=os.path.getctime)
         except ValueError:
-            raise FileNotFoundError('No graph (.meta) files '
-                                    'available at {}'.format(data_dir))
+            raise FileNotFoundError(f'No graph (.meta) files available at {data_dir}')
 
         with self.sess.as_default() as sess:
             self.saver = tf.train.import_meta_graph(latest_meta)
             self.saver.restore(sess, latest_ckpt)
 
         self.tf_predict_var = \
-            self.sess.graph.get_tensor_by_name(self.tf_predict_var)
+                self.sess.graph.get_tensor_by_name(self.tf_predict_var)
         self.tf_input_var = \
-            self.sess.graph.get_tensor_by_name(self.tf_input_var)
+                self.sess.graph.get_tensor_by_name(self.tf_input_var)
 
     def _predict(self, input_array):
         return self.sess.run(self.tf_predict_var,

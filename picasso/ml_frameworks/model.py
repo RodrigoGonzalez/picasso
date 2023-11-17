@@ -76,11 +76,10 @@ class Model:
         self.prob_decoder_path = prob_decoder_path
 
         for util in ('preprocessor', 'postprocessor', 'prob_decoder'):
-            if getattr(self, '{}_path'.format(util)):
-                spec = importlib.util.\
-                        spec_from_file_location(
-                            getattr(self, '{}_name'.format(util)),
-                            getattr(self, '{}_path'.format(util)))
+            if getattr(self, f'{util}_path'):
+                spec = importlib.util.spec_from_file_location(
+                    getattr(self, f'{util}_name'), getattr(self, f'{util}_path')
+                )
                 setattr(self, util, importlib.util.module_from_spec(spec))
                 spec.loader.exec_module(getattr(self, util))
 
@@ -200,12 +199,10 @@ class Model:
             warnings.warn('Evaluating without class decoder')
             results = []
             for row in output_arr:
-                entries = []
-                for i, prob in enumerate(row):
-                    entries.append({'index': i,
-                                    'name': str(i),
-                                    'prob': prob})
-
+                entries = [
+                    {'index': i, 'name': str(i), 'prob': prob}
+                    for i, prob in enumerate(row)
+                ]
                 entries = sorted(entries,
                                  key=itemgetter('prob'),
                                  reverse=True)[:self.top_probs]

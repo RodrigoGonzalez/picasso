@@ -25,6 +25,7 @@ Attributes:
         Visualization classes available for rendering.
 
 """
+
 import os
 import io
 import time
@@ -66,11 +67,7 @@ for submodule in visualization_submodules:
 # Use a bogus secret key for debugging ease. No
 # client information is stored, the secret key is only
 # necessary for generating the session cookie.
-if app.debug:
-    app.secret_key = '...'
-else:
-    app.secret_key = os.urandom(24)
-
+app.secret_key = '...' if app.debug else os.urandom(24)
 # This pattern is used in other projects with Flask and
 # tensorflow, but probably isn't the most stable or
 # safest way.  Would be much better to connect to a
@@ -150,10 +147,7 @@ def landing():
     if request.method == 'POST':
         session['vis_name'] = request.form.get('choice')
         vis = get_visualizations()[session['vis_name']]
-        if hasattr(vis, 'settings'):
-            return visualization_settings()
-        return select_files()
-
+        return visualization_settings() if hasattr(vis, 'settings') else select_files()
     # otherwise, on GET request
     visualizations = get_visualizations()
     vis_desc = [{'name': vis,
@@ -199,20 +193,15 @@ def select_files():
         vis = get_visualizations()[session['vis_name']]
         inputs = []
         for file_obj in request.files.getlist('file[]'):
-            entry = {}
-            entry.update({'filename': file_obj.filename})
+            entry = {'filename': file_obj.filename}
             # Why is this necessary? Unsure why Flask sometimes
             # sends the files as bytestreams vs. strings.
             try:
-                entry.update({'data':
-                              Image.open(
-                                  io.BytesIO(file_obj.stream.getvalue())
-                              )})
+                entry['data'] = Image.open(
+                    io.BytesIO(file_obj.stream.getvalue())
+                )
             except AttributeError:
-                entry.update({'data':
-                              Image.open(
-                                  io.BytesIO(file_obj.stream.read())
-                              )})
+                entry['data'] = Image.open(io.BytesIO(file_obj.stream.read()))
             inputs.append(entry)
 
         start_time = time.time()
@@ -234,16 +223,18 @@ def select_files():
 
         kwargs = {}
         if hasattr(vis, 'reference_link'):
-            kwargs.update({'reference_link': vis.reference_link})
+            kwargs['reference_link'] = vis.reference_link
 
-        return render_template('{}.html'.format(session['vis_name']),
-                               inputs=inputs,
-                               results=output,
-                               current_vis=session['vis_name'],
-                               settings=session['settings'],
-                               app_state=get_app_state(),
-                               duration=duration,
-                               **kwargs)
+        return render_template(
+            f"{session['vis_name']}.html",
+            inputs=inputs,
+            results=output,
+            current_vis=session['vis_name'],
+            settings=session['settings'],
+            app_state=get_app_state(),
+            duration=duration,
+            **kwargs,
+        )
 
     # otherwise, if no files in request
     session['settings'] = request.form.to_dict()
